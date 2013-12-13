@@ -1,0 +1,13 @@
+Voter:
+    Susan:
+      Name: Susan
+    Peter:
+      Name: Peter
+    Edmund:
+      Name: Edmund
+    Lucy:
+      Name: Lucy
+
+Decision:
+  Sleep:
+    Content: I will go to sleep now.

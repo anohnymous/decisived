@@ -1,0 +1,3 @@
+This extends the Silverstripe licsence, in its own words:
+
+We believe in giving back to the community that has helped us get to where we are today. Our software is free. Come join the party.

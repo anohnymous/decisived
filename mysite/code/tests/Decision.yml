@@ -1,0 +1,15 @@
+Decision:
+  Pizza:
+    ID: 29
+    Content: Order half cheese half pepperoni pizza.
+
+DecidingFactor:
+  Pouter:
+    Content: Edmund doesn't like pepperoni.
+  Dietary:
+    Content: Lucy needs high protein.
+  Ethics:
+    Content: Susan feels meat is immoral.
+  Hunger:
+    Content: Peter thinks more is better and pepperoni pizza is more filling.
+

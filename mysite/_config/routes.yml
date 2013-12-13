@@ -1,0 +1,10 @@
+Director:
+  rules:
+    '' : 'DecisionMaking_Controller'
+    'decision//$Action/$DecisionID/$SystemSetID': 'DecisionMaking_Controller'
+    'DecideForm' : 'DecisionMaking_Controller'
+    'voter//$Action/$DecisionID/$VoterID' : 'Voting_Controller'
+    'twitter//' : 'Twitter_Controller'                         
+    'civic//' : 'Civic_Controller'                        
+    'ciudad//' : 'CiudadData_Controller'                    
+    'districtmap//' : 'Map_Controller'
