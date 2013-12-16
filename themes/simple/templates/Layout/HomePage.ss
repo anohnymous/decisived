@@ -1,10 +1,31 @@
 <% include SideBar %>
 <div class="content-container unit size3of4 lastUnit">
 	<article>
-		<%-- <h1>Decisions, Decisions</h1> --%>
+		<h1>Decisions, Decisions</h1>
 		<div class="content">
-		    <p>Un decisión en forma normal es cuando la respuesta es sola si o no. A normalized form for a decision statement is yes or no.</p>
+
+
+<h4>Systems and Decisions: three assumptions:</h4>
+
+<p>"Everything is a Decision."</p>
+
+<p>"A fully normalized decision statement must be expressed in a yes or 
+no format."</p>
+
+<p>"A system can be expressed as a totality of its Decisions, 
+Operations, and Definitions."</p>
+
+<p>Building a tool that could be used to model these and determine if 
+these assumptions are valid or provide insight into systems is a useful 
+undertaking.</p>
+
+<p>According to Donella Meadows, the best thing to do when processing 
+systems is dance, and the first place to start is observation.  
+The first step in this process could be working on phrasing decision 
+statements clearly in binary ways.<p>
+
 		    <!--
+		    <p>Un decisión en forma normal es cuando la respuesta es sola si o no. A normalized form for a decision statement is yes or no.</p>
 		    <p>Decisions can have Deciding Factors which are like talking points to track conversation.</p>
 		    <p>A Decision can have Outcomes.  Outcomes can be voted on.  Outcomes don't require normalized statement form, and can be thought of as approved or disproved.</p>
 		    -->
