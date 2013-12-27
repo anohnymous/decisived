@@ -7,13 +7,19 @@
 
 <h4>Systems and Decisions: three assumptions:</h4>
 
-<p>"Everything is a Decision."</p>
+<p>
+!! but first, definitions</br>
+<b>Operations</b> A series of decisions executed in order(s).</br>
+<b>Definitions</b> : Everything.</p>
 
-<p>"A fully normalized decision statement must be expressed in a yes or 
-no format."</p>
-
-<p>"A system can be expressed as a totality of its Decisions, 
-Operations, and Definitions."</p>
+<p>
+<b>assumptions</b><br />
+"Everything is a Decision."<br />
+"A fully normalized decision statement must be expressed in a yes or 
+no format."<br />
+"A system can be expressed as a totality of its Decisions, 
+Operations, and Definitions."<br />
+</p>            
 
 <p>Building a tool that could be used to model these and determine if 
 these assumptions are valid or provide insight into systems is a useful 
@@ -45,7 +51,7 @@ statements clearly in binary ways.<p>
 </div>
 <div class="float50percent">
 	    <% if MostRecentDecisions %>
-	    <h2>Decisiones en discusion ahora</h2>
+	    <h2>Decisiones en discusion ahorita</h2>
 	    <p>Decisions Currently in Discussion</p>
 	    <ul>
 	    <% loop MostRecentDecisions %>
