@@ -7,13 +7,16 @@ class DecisionMaking_Controller extends Controller {
         'decided' => true,
         'DecideForm' => true,
         'deciding' => true,
-        'systemset' => true,
         'deleteSystemset' => true,
         'edit' => true,
         'factor' => true,   
+        'mostdecisionactivity' => true,
         'optionsgroup' => true,
+        'systemset' => true,
+        'theory' => true,
         'undecided' => true,
-        'versions'  => true
+        'versions'  => true,
+        'whatsup' => true
     );
 
     static $extensions = array('Hierarchy');
@@ -64,7 +67,7 @@ class DecisionMaking_Controller extends Controller {
         echo 'decided';
         print_r($arguments);
     }
-
+    
     public function deciding() {
         $this->WritingDecision($this->request->postVars());
         return $this->renderWith(array('CurrentDecision', 'Page'));
@@ -82,11 +85,25 @@ class DecisionMaking_Controller extends Controller {
     public function factor(){
         $this->writeFactor($this->request->postVars());
         return $this->renderWith(array('EditFactor', 'Page'));
-    }                      
+    }                    
+    
+    public function mostdecisionactivity(){
+        return $this->renderWith(array('MostDecisionActivity', 'Page'));
+        
+    }
+    
+    public function theory(){
+        return $this->renderWith(array('Theory', 'Page'));
+    }
 
     public function optionsgroup(){
         $this->writeOptionsGroup($this->request->postVars());
         return $this->renderWith(array('OptionsGroup', 'Page'));
+    }
+    
+    public function whatsup(){
+        $this->whatDoWeKnow($this->request->postVars());
+        return $this->renderWith("Page","Page");
     }
 
     public function undecided() {
@@ -441,7 +458,7 @@ class DecisionMaking_Controller extends Controller {
         if(self::$_CurrentDecisionID != 0){
             $Decision = DataObject::get_by_id('Decision',self::$_CurrentDecisionID);
             if(isset($Decision)){
-                return $Decision->YesHashtag;
+                return $DecisionF->YesHashtag;
             }
         }
         return false;
@@ -608,6 +625,29 @@ class DecisionMaking_Controller extends Controller {
         $umHash = $this->UmHashtagContent();
         $umTweets = $TwitterController->queryTwitter($umHash);
         return $umTweets;
+    }
+    
+    public function whatDoWeKnow($data = null){
+        if($data['DoYouWannaDecide'] == 'no'){
+            $this->redirect("decision/mostdecisionactivity/");    
+        } elseif($data['DoYouWannaDecide'] == 'yes'){
+            $this->redirect("decision/edit/");    
+        } 
+        $fields = new FieldList();
+
+        $fields->push(new OptionsetField('DoYouWannaDecide','Is there something you need to decide?',array("yes"=>"Yes","no"=>"No, but I could view others decisions.")));
+        $ActionText = 'Go';
+        $ActionPostPath = '/decision/whatsup';
+        
+        $actions = new FieldList(
+            FormAction::create($ActionPostPath)->setTitle($ActionText)
+        );
+        
+        $form = new Form($this, $ActionPostPath, $fields, $actions);
+        // Load the form with previously sent data
+        $form->loadDataFrom($this->request->postVars());
+        return $form;
+        
     }
 
 }

@@ -58,21 +58,23 @@ class Twitter_Controller extends Controller {
 
 			$returntweets = new ArrayList();
             $rawTweets = $connection->get('search/tweets.json?',$config);
-            foreach($rawTweets->statuses as $tweet){
-                $tweetData = new ArrayData(array(
-                        'tweettext' => $tweet->text,
-                        'created_at' => $tweet->created_at,
-                        'screen_name' => $tweet->user->screen_name,
-                    )
-                );
-                $returntweets->add($tweetData);
+            if(property_exists($rawTweets,'statuses')){
+                foreach($rawTweets->statuses as $tweet){
+                    $tweetData = new ArrayData(array(
+                            'tweettext' => $tweet->text,
+                            'created_at' => $tweet->created_at,
+                            'screen_name' => $tweet->user->screen_name,
+                        )
+                    );
+                    $returntweets->add($tweetData);
+                }
+				
+                return $returntweets;
             }
             
 			//echo "<pre>";
 			//var_dump($returntweets);
 			//echo "</pre>";
-				
-            return $returntweets;
             /*
             $view = new ViewableData();
             //$output = $view->renderWith('TwitterFeed', array('Tweets' => $tweetList));

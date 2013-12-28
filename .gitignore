@@ -2,3 +2,4 @@
 _ss_environment.php
 framework/*
 nbproject/*
+silverstripe-cache/*
