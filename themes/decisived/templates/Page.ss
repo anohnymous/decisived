@@ -38,6 +38,8 @@ Change it, enhance it and most importantly enjoy it!
 <% include Footer %>
 
 <% require javascript('framework/thirdparty/jquery/jquery.js') %>
+<% require javascript('mysite/javascript/decisived.js') %>
+<% require javascript('mysite/javascript/jquery.jeditable.mini.js') %>
 
 </body>
 </html>

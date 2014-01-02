@@ -51,31 +51,7 @@ class DecisionMaking_Controller extends Controller {
             self::$_CurrentSystemSetID = $RequestSystemSetID;
         }
         parent::init();
-        
-         
-        // load jQuery
-        Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
-     
-        $ajaxLoad = $this->Link() . 'AJAXSubmit';    
-   
-        // respond to form submission 
-        $url = 'http://decisived.local//decision/ajaxSubmit'; 
- 
-        Requirements::customScript(<<<JS
-            (function($) {
-                $(document).ready(function() {
-     
-                    $("#Form_decisionfactor").submit(function(){
-                alert('$url');
-                        $('#result').load(
-                            '{$url}'
-                        );
-                        return false;
-                    });
-                });
-                })(jQuery);
-JS
-            );
+              
     }
 
     /**
@@ -399,10 +375,12 @@ JS
               $DecidingFactor = new DecidingFactor();
             }
             $DecidingFactor->Content = isset($data['DecidingFactorContent']) ? Convert::raw2sql($data['DecidingFactorContent']) : $DecidingFactor->Content;
-            $DecidingFactor->DecisionID = intval($data['DecisionID']);
+            //$DecidingFactor->DecisionID = intval($data['DecisionID']);
             $DecidingFactor->ArgumentSide = isset($data['ArgumentSide']) ? Convert::raw2sql($data['ArgumentSide']) : $DecidingFactor->ArgumentSide;
             $DecidingFactor->write();
+            return true;
         }
+        return false;
     }                          
 
     public function writeOptionsGroup($data){
@@ -684,11 +662,17 @@ JS
 
     function AjaxSubmit() {
         if (Director::is_ajax()) {
-            //parse_str(urldecode($this->requestParams['values']), $postedData);
-            //if ($postedData['SecurityID'] == Session::get('SecurityID')) {
-                return 'Hi there';
-            //}
-            //else return false;
+            $editableIDfield = $this->request->postVar('id');
+            $decomposeID = explode('-',$editableIDfield);
+            $fieldName = $decomposeID[0];
+            $recordID = $decomposeID[1];
+            if($fieldName == 'DecidingFactorID'){
+                $data['DecidingFactorID'] = $recordID;
+                $data['DecidingFactorContent'] = $this->request->postVar('value');
+                $this->writeFactor($data);
+                return $this->request->postVar('value');
+            }
+            return false;
         }
         
         return $this->renderWith(array('Blank', 'Blank'));

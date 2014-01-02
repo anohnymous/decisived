@@ -4,7 +4,7 @@ Deciding Factors<br />
 <strong>Yes</strong>
 <ul>
     <% loop getDecidingFactors('Yes') %>
-    <li><div id="FactorID$ID">$Content</div> <a href="/decision/factor/$DecisionID/?factorid=$ID" onClick="EditFactor('FactorID$ID')">edit</a></li>
+    <li class="edit" id="DecidingFactorID-$ID">$Content</li>
     <% end_loop %>
 </ul>
 <strong>No</strong>
