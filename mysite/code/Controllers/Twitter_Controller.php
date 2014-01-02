@@ -58,7 +58,7 @@ class Twitter_Controller extends Controller {
 
 			$returntweets = new ArrayList();
             $rawTweets = $connection->get('search/tweets.json?',$config);
-            if(property_exists($rawTweets,'statuses')){
+            if(is_object($rawTweets) && property_exists($rawTweets,'statuses')){
                 foreach($rawTweets->statuses as $tweet){
                     $tweetData = new ArrayData(array(
                             'tweettext' => $tweet->text,

@@ -3,6 +3,7 @@
 class DecisionMaking_Controller extends Controller {
     public static $allowed_actions = array(
         'index' => true,
+        'AJAXSubmit' => true,
         'deleteDecision' => true,
         'decided' => true,
         'DecideForm' => true,
@@ -50,6 +51,31 @@ class DecisionMaking_Controller extends Controller {
             self::$_CurrentSystemSetID = $RequestSystemSetID;
         }
         parent::init();
+        
+         
+        // load jQuery
+        Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+     
+        $ajaxLoad = $this->Link() . 'AJAXSubmit';    
+   
+        // respond to form submission 
+        $url = 'http://decisived.local//decision/ajaxSubmit'; 
+ 
+        Requirements::customScript(<<<JS
+            (function($) {
+                $(document).ready(function() {
+     
+                    $("#Form_decisionfactor").submit(function(){
+                alert('$url');
+                        $('#result').load(
+                            '{$url}'
+                        );
+                        return false;
+                    });
+                });
+                })(jQuery);
+JS
+            );
     }
 
     /**
@@ -128,9 +154,9 @@ class DecisionMaking_Controller extends Controller {
         if(self::$_CurrentDecisionID){
             $Decision = Decision::get_by_id('Decision',self::$_CurrentDecisionID);
             $fields->push(new TextareaField('DecisionStatement','Decision Statement',$Decision->Content));
-            $fields->push(new TextField('YesHashtag','Yes Hashtag Labeling (without #)',$Decision->YesHashtag));
-            $fields->push(new TextField('NoHashtag','No Hashtag Labeling (without #)',$Decision->NoHashtag));
-            $fields->push(new TextField('UmHashtag','Ummmm.... Undecided Hashtag Labeling (without #)',$Decision->UmfHashtag));
+            //$fields->push(new TextField('YesHashtag','Yes Hashtag Labeling (without #)',$Decision->YesHashtag));
+            //$fields->push(new TextField('NoHashtag','No Hashtag Labeling (without #)',$Decision->NoHashtag));
+            //$fields->push(new TextField('UmHashtag','Ummmm.... Undecided Hashtag Labeling (without #)',$Decision->UmfHashtag));
             $SystemSetField = new DropdownField(
                 'SystemSetID',
                 '',
@@ -144,10 +170,10 @@ class DecisionMaking_Controller extends Controller {
                 $Decision->ParentID
             );
         } else {
-            $fields->push(new TextareaField('DecisionStatement','Decision Statement'));
-            $fields->push(new TextField('YesHashtag','Yes Hashtag Labeling (without #)'));
-            $fields->push(new TextField('NoHashtag','No Hashtag Labeling (without #)'));
-            $fields->push(new TextField('UmHashtag','Undecided Hashtag Labeling (without #)'));
+            $fields->push(new TextareaField('DecisionStatement','What are you trying to decide?'));
+            //$fields->push(new TextField('YesHashtag','Yes Hashtag Labeling (without #)'));
+            //$fields->push(new TextField('NoHashtag','No Hashtag Labeling (without #)'));
+            //$fields->push(new TextField('UmHashtag','Undecided Hashtag Labeling (without #)'));
             $SystemSetField = new DropdownField(
                 'SystemSetID',
                 '',
@@ -160,9 +186,9 @@ class DecisionMaking_Controller extends Controller {
             );
         }
         $SystemSetField->setEmptyString('Group in Set?');
-        $fields->push($SystemSetField);
+        //$fields->push($SystemSetField);
         $ParentField->setEmptyString('Choose Parent Decision');
-        $fields->push($ParentField);
+        //$fields->push($ParentField);
 
         if(self::$_CurrentDecisionID != 0){
             $fields->push(new HiddenField('DecisionID','', self::$_CurrentDecisionID));
@@ -215,7 +241,7 @@ class DecisionMaking_Controller extends Controller {
         $factoridGet = $this->request->getVar('factorid');
         
         $factoridPost = isset($postVars['DecidingFactorID']) ? $postVars['DecidingFactorID'] : null;
-          
+       
         $factorid = isset($factoridGet) ? $factoridGet : $factoridPost;
         if(self::$_CurrentDecisionID){                 
             $Decision = Decision::get_by_id('Decision',self::$_CurrentDecisionID);
@@ -232,12 +258,12 @@ class DecisionMaking_Controller extends Controller {
         //$fields->push(new CheckboxField('LinkBack','<a href="/decision?' . $getVars . '">Just make a decision.</a>'));
 
         $Factor = isset($FactorContent) ? $FactorContent : '';
-        $fields->push(new TextField('DecidingFactorContent','', $Factor));
+        $fields->push(new TextareaField('DecidingFactorContent','', $Factor));
         if(!empty($Factor->ArgumentSide)){
           $fields->push(new LiteralField('ArgumentSideCurrent','Your argument is currently factored into the '.$Factor->ArgumentSide.' side.'));
         }
         
-        $fields->push(new OptionsetField('ArgumentSide','Is your argument a factor for the Yes or No Side?',array("yes"=>"Yes","no"=>"No")));
+        $fields->push(new OptionsetField('ArgumentSide','Factoring into Yes Side or No Side?',array("yes"=>"Yes","no"=>"No")));
         $ActionText = 'Write this Deciding Factor.';
 
         if (isset($Factor->DecisionID) || self::$_CurrentDecisionID != 0){
@@ -368,7 +394,7 @@ class DecisionMaking_Controller extends Controller {
     public function writeFactor($data){           
         if(isset($data['DecidingFactorContent'])){
             if(isset($data['DecidingFactorID'])) {
-              $DecidingFactor = DecidingFactor::get_by_id('DecidingFactor',Convert::raw2sql($data['DecidingFactorID']));
+                $DecidingFactor = DecidingFactor::get_by_id('DecidingFactor',Convert::raw2sql($data['DecidingFactorID']));
             } else {
               $DecidingFactor = new DecidingFactor();
             }
@@ -458,7 +484,7 @@ class DecisionMaking_Controller extends Controller {
         if(self::$_CurrentDecisionID != 0){
             $Decision = DataObject::get_by_id('Decision',self::$_CurrentDecisionID);
             if(isset($Decision)){
-                return $DecisionF->YesHashtag;
+                return $Decision->YesHashtag;
             }
         }
         return false;
@@ -492,8 +518,14 @@ class DecisionMaking_Controller extends Controller {
         return false;
     }
 
-    public function getDecidingFactors(){
-        $decidingFactors = DataObject::get('DecidingFactor')->filter('DecisionID',self::$_CurrentDecisionID);
+    public function getDecidingFactors($side = null){
+        if($side == 'Yes'){ 
+            $decidingFactors = DataObject::get('DecidingFactor')->filter(array('DecisionID'=>self::$_CurrentDecisionID,'ArgumentSide'=>'Yes'));
+        }elseif($side == 'No'){ 
+            $decidingFactors = DataObject::get('DecidingFactor')->filter(array('DecisionID'=>self::$_CurrentDecisionID,'ArgumentSide'=>'No'));
+        }elseif(is_null($side)){
+            $decidingFactors = DataObject::get('DecidingFactor')->filter(array('DecisionID'=>self::$_CurrentDecisionID))->where('ArgumentSide IS NULL');
+        }
         if($decidingFactors){
           return $decidingFactors;
         }
@@ -635,7 +667,7 @@ class DecisionMaking_Controller extends Controller {
         } 
         $fields = new FieldList();
 
-        $fields->push(new OptionsetField('DoYouWannaDecide','Is there something you need to decide?',array("yes"=>"Yes","no"=>"No, but I could view others decisions.")));
+        $fields->push(new OptionsetField('DoYouWannaDecide','Is there something you need to decide?',array("yes"=>"Yes","no"=>"No, but I might help with existing decisions.")));
         $ActionText = 'Go';
         $ActionPostPath = '/decision/whatsup';
         
@@ -650,4 +682,16 @@ class DecisionMaking_Controller extends Controller {
         
     }
 
+    function AjaxSubmit() {
+        if (Director::is_ajax()) {
+            //parse_str(urldecode($this->requestParams['values']), $postedData);
+            //if ($postedData['SecurityID'] == Session::get('SecurityID')) {
+                return 'Hi there';
+            //}
+            //else return false;
+        }
+        
+        return $this->renderWith(array('Blank', 'Blank'));
+    }
+    
 }

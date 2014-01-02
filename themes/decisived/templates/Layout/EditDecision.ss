@@ -2,24 +2,20 @@
 <div class="content-container unit size3of4 lastUnit">
 	<article>
 		<div class="content">
-		The goal of normalizing decision statements is to create a yes or no statement.<br /><br /><br /><br />
+		Remember you want to phrase your decision so yes or no responses make the most sense.<br />
+        	$DecideForm
+	        If you aren't sure yet what form your decision might take, just start by seeing if you can find factors to consider on both the yes/no sides.<br /><br /><br />
+                $FactorForm
 		</div>
-		$DecideForm
+<pre>
+<div id="result"></div>
+</pre>
 	</article>
 	    <div>
 	    <br />
 	    $DecisionContent
 	    <%-- include ParseDecision !--%>
-	    <% if getDecidingFactors %>
-  	    <% loop getDecidingFactors %>
-  	    Deciding Factors
-  	    <br />
-  	        $Content
-  	    <% end_loop %>
-	    <% end_if %>
-	    <% loop getOutcomes %>
-	        $Content
-	    <% end_loop %>
-	    </div>
+	    <% include FactorsYesNoSplit %>
+            </div>
         $PageComments
 </div>
