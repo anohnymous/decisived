@@ -1,0 +1,10 @@
+.float50percent { 
+        width: 50%;
+        float:left;
+        display: inline;
+}
+
+.clearFix{
+  clear: both;
+  width: 100%;
+}
