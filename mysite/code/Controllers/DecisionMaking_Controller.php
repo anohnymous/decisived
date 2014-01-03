@@ -11,7 +11,7 @@ class DecisionMaking_Controller extends Controller {
         'deleteSystemset' => true,
         'edit' => true,
         'factor' => true,   
-        'mostdecisionactivity' => true,
+        'mostactivity' => true,
         'optionsgroup' => true,
         'systemset' => true,
         'theory' => true,
@@ -23,15 +23,11 @@ class DecisionMaking_Controller extends Controller {
     static $extensions = array('Hierarchy');
 
     public static $_CurrentDecisionID = 0;
-    public static $_CurrentSystemSetID = 0;
 
     public function init(){
         $GetDecisionID = $this->request->getVar('DecisionID');
         $PostDecisionID = $this->request->postVar('DecisionID');
         $RequestDecisionID = $this->request->Param('DecisionID');
-        $GetSystemSetID = $this->request->getVar('SystemSetID');
-        $PostSystemSetID = $this->request->postVar('SystemSetID');
-        $RequestSystemSetID = $this->request->Param('SystemSetID');
         if(isset($GetDecisionID)){
             self::$_CurrentDecisionID = $GetDecisionID;
         }
@@ -40,15 +36,6 @@ class DecisionMaking_Controller extends Controller {
         }
         if(isset($RequestDecisionID)){
             self::$_CurrentDecisionID = $RequestDecisionID;
-        }
-        if(isset($GetSystemSetID)){
-            self::$_CurrentDecisionID = $GetSystemSetID;
-        }
-        if(isset($PostSystemSetID)){
-            self::$_CurrentDecisionID = $PostSystemSetID;
-        }
-        if(isset($RequestSystemSetID)){
-            self::$_CurrentSystemSetID = $RequestSystemSetID;
         }
         parent::init();
               
@@ -89,8 +76,8 @@ class DecisionMaking_Controller extends Controller {
         return $this->renderWith(array('EditFactor', 'Page'));
     }                    
     
-    public function mostdecisionactivity(){
-        return $this->renderWith(array('MostDecisionActivity', 'Page'));
+    public function mostactivity(){
+        return $this->renderWith(array('MostActivity', 'Page'));
         
     }
     
@@ -129,6 +116,7 @@ class DecisionMaking_Controller extends Controller {
         //$fields->push(new TextField('Actor','Actor'));
         if(self::$_CurrentDecisionID){
             $Decision = Decision::get_by_id('Decision',self::$_CurrentDecisionID);
+            $fields->push(new HiddenField('DecisionID','', self::$_CurrentDecisionID));
             $fields->push(new TextareaField('DecisionStatement','Decision Statement',$Decision->Content));
             //$fields->push(new TextField('YesHashtag','Yes Hashtag Labeling (without #)',$Decision->YesHashtag));
             //$fields->push(new TextField('NoHashtag','No Hashtag Labeling (without #)',$Decision->NoHashtag));
@@ -145,6 +133,18 @@ class DecisionMaking_Controller extends Controller {
                 $this->getDecisionOptions(),
                 $Decision->ParentID
             );
+            $YesChildField = new DropdownField(
+                'YesChildID',
+                '',
+                $this->getDecisionOptions(),
+                $Decision->YesChildID
+            );
+            $NoChildField = new DropdownField(
+                'NoChildID',
+                '',
+                $this->getDecisionOptions(),
+                $Decision->NoChildID
+            );
         } else {
             $fields->push(new TextareaField('DecisionStatement','What are you trying to decide?'));
             //$fields->push(new TextField('YesHashtag','Yes Hashtag Labeling (without #)'));
@@ -160,18 +160,27 @@ class DecisionMaking_Controller extends Controller {
                 '',
                 $this->getDecisionOptions()
             );
+            $YesChildField = new DropdownField(
+                'YesChildID',
+                '',
+                $this->getDecisionOptions()
+            );
+            $NoChildField = new DropdownField(
+                'NoChildID',
+                '',
+                $this->getDecisionOptions()
+            );
         }
         $SystemSetField->setEmptyString('Group in Set?');
-        //$fields->push($SystemSetField);
+        $fields->push($SystemSetField);
         $ParentField->setEmptyString('Choose Parent Decision');
         //$fields->push($ParentField);
+        $YesChildField->setEmptyString('Pick a decision to follow the yes choice (now none does)');
+        $fields->push($YesChildField);
+        $NoChildField->setEmptyString('Pick a decision to follow the no choice (now none does)');
+        $fields->push($NoChildField);
 
-        if(self::$_CurrentDecisionID != 0){
-            $fields->push(new HiddenField('DecisionID','', self::$_CurrentDecisionID));
-            $ActionText = 'Still deciding...';
-        } else {
-            $ActionText = 'Write Decision Statement.';
-        }
+        $ActionText = 'Write Decision Statement.';
 
         $actions = new FieldList(
             FormAction::create("/decision/deciding")->setTitle($ActionText)
@@ -184,16 +193,19 @@ class DecisionMaking_Controller extends Controller {
 
 
     public function SystemSetForm() {
-        if(self::$_CurrentSystemSetID != 0){
-            $SystemSet = SystemSet::get_by_id('SystemSet',self::$_CurrentSystemSetID);
-        }
+        $systemSetID = $this->request->Param('SystemSetID');
 
         $fields = new FieldList();
 
-        if(self::$_CurrentSystemSetID != 0){
-            $fields->push(new TextField('Name','System Set Name',$SystemSet->Name));
-            $fields->push(new HiddenField('SystemSetID','', self::$_CurrentSystemSetID));
-            $ActionText = 'Rename System Set';
+        if($systemSetID){
+            $SystemSet = SystemSet::get_by_id('SystemSet',$systemSetID);
+            if($SystemSet){
+                $fields->push(new TextField('Name','System Set Name',$SystemSet->Name));
+                $fields->push(new HiddenField('SystemSetID','', $SystemSet->ID));
+                $ActionText = 'Rename System Set';
+            } else {
+                return false;
+            }
         } else {
             $fields->push(new TextField('Name','System Set Name'));
             $ActionText = 'Name System Set.';
@@ -325,7 +337,8 @@ class DecisionMaking_Controller extends Controller {
         if(isset($Decision) && (isset($data['DecisionStatement']) || isset($data['YesNo']))){
             $Decision->SystemSetID = isset($data['SystemSetID']) ? Convert::raw2sql($data['SystemSetID']) : $Decision->SystemSetID;
             $Decision->ParentID = isset($data['ParentID']) ? Convert::raw2sql($data['ParentID']) : $Decision->ParentID;
-            $Decision->Content = isset($data['DecisionStatement']) ? Convert::raw2sql($data['DecisionStatement']) : $Decision->Content;
+            $Decision->YesChildID = isset($data['YesChildID']) ? Convert::raw2sql($data['YesChildID']) : $Decision->YesChildID;
+            $Decision->NoChildID = isset($data['NoChildID']) ? Convert::raw2sql($data['NoChildID']) : $Decision->NoChildID;
             $Decision->Content = isset($data['DecisionStatement']) ? Convert::raw2sql($data['DecisionStatement']) : $Decision->Content;
             $Decision->YesHashtag = isset($data['YesHashtag']) ? Convert::raw2sql($data['YesHashtag']) : $Decision->YesHashtag;
             $Decision->NoHashtag = isset($data['NoHashtag']) ? Convert::raw2sql($data['NoHashtag']) : $Decision->NoHashtag;
@@ -357,7 +370,6 @@ class DecisionMaking_Controller extends Controller {
         if(!empty($data['Name'])){
             $SystemSet->Name = Convert::raw2sql($data['Name']);
             $SystemSet->write();
-            self::$_CurrentSystemSetID = $SystemSet->ID;
         }
     }
     
@@ -392,7 +404,8 @@ class DecisionMaking_Controller extends Controller {
     }
     
     public function OptionsGroupBySet(){
-        return DataObject::get('OptionsGroup')->filter('SystemSetID',self::$_CurrentSystemSetID);
+        $systemSetID = $this->request->Param('SystemSetID');
+        return DataObject::get('OptionsGroup')->filter('SystemSetID',$systemSetID);
     }
 
     public function getDecisionOptions()
@@ -555,8 +568,9 @@ class DecisionMaking_Controller extends Controller {
     }
 
     public function DecisionsInSet(){
-        if(self::$_CurrentSystemSetID != 0){
-            $DecisionsInSet = Decision::get()->filter('SystemSetID',self::$_CurrentSystemSetID);
+        $systemSetID = $this->request->Param('SystemSetID');        
+        if($systemSetID){
+            $DecisionsInSet = Decision::get()->filter('SystemSetID',$systemSetID);
             return $DecisionsInSet;
         }
         return false;
@@ -638,14 +652,15 @@ class DecisionMaking_Controller extends Controller {
     }
     
     public function whatDoWeKnow($data = null){
+        $fields = new FieldList();
         if($data['DoYouWannaDecide'] == 'no'){
-            $this->redirect("decision/mostdecisionactivity/");    
+            $this->redirect("decision/mostactivity/");    
         } elseif($data['DoYouWannaDecide'] == 'yes'){
             $this->redirect("decision/edit/");    
+        } else {
+            $fields->push(new OptionsetField('DoYouWannaDecide','Is there something you need to decide?',array("yes"=>"Yes","no"=>"No, but I might help with existing decisions.")));            
         } 
-        $fields = new FieldList();
-
-        $fields->push(new OptionsetField('DoYouWannaDecide','Is there something you need to decide?',array("yes"=>"Yes","no"=>"No, but I might help with existing decisions.")));
+        
         $ActionText = 'Go';
         $ActionPostPath = '/decision/whatsup';
         
@@ -657,7 +672,6 @@ class DecisionMaking_Controller extends Controller {
         // Load the form with previously sent data
         $form->loadDataFrom($this->request->postVars());
         return $form;
-        
     }
 
     function AjaxSubmit() {

@@ -2,7 +2,7 @@
 <!--
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Simple. by Sara (saratusar.com, @saratusar) for Innovatif - an awesome Slovenia-based digital agency (innovatif.com/en)
-Change it, enhance it and most importantly enjoy it!
+Change it, enhance it =) and most importantly enjoy it:D
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 -->
 
@@ -22,18 +22,17 @@ Change it, enhance it and most importantly enjoy it!
 	<% require themedCSS('decisived') %>
 	<link rel="shortcut icon" href="/favicon.ico" />
 </head>
-<body class="$ClassName<% if not $Menu(2) %> no-sidebar<% end_if %>">
-<% include Header %>
+<body>
 <div class="main" role="main">
-	<div class="inner typography line">
+	<div>
 		$Layout
 	</div>
 </div>
-<% include Footer %>
 
 <% require javascript('framework/thirdparty/jquery/jquery.js') %>
 <% require javascript('mysite/javascript/decisived.js') %>
 <% require javascript('mysite/javascript/jquery.jeditable.mini.js') %>
+<% require javascript('mysite/javascript/jquery-ui.js') %>
 
 </body>
 </html>

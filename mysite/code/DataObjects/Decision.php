@@ -11,6 +11,8 @@ class Decision extends DataObject {
     );
 
     static $has_one = array(
+        'YesChild' => 'Descendent',
+        'NoChild' => 'Descendent',
         'SystemSet' => 'SystemSet',
         'OptionsGroup' => 'OptionsGroup'
     );
@@ -19,5 +21,9 @@ class Decision extends DataObject {
         'Outcome' => 'Outcomes',
         'DecidingFactor' => 'DecidingFactors'
     );
+    
+    public function SetSortOrder(){
+        //var_dump($this);
+    }
 
 }

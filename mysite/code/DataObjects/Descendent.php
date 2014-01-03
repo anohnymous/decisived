@@ -1,6 +1,6 @@
 <?php
 
-class Descendent extends Decision {
+class Antecedent extends Decision {
     static $db = array(
     );
 

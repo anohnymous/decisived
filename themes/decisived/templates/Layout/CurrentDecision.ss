@@ -59,28 +59,6 @@
 	    <div id="CurrentDecisionsFactors">
 	    <%-- include DecidingFactor !--%>
 	    </div>
-        <h4>Use twitter to discuss, tweet your vote with these hashtags:</h4>
-        <hr />
-	    <div class="float50percent">
-	    <b>$YesHashtagContent</b>
-        <% if getTwitterYes %>
-            <ul>
-            <% loop getTwitterYes %>
-            <li>$tweettext</li>
-            <% end_loop %>
-            </ul>
-        <% end_if %>
-        </div>
-	    <div class="float50percent">
-	    <b>$NoHashtagContent</b>
-        <% if getTwitterNo %>
-            <ul>
-            <% loop getTwitterNo %>
-            <li>$tweettext</li>
-            <% end_loop %>
-            </ul>
-        <% end_if %>
-        </div>
 	</div>
     </div>
 </div>
