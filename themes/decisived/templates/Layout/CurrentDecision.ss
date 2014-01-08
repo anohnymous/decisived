@@ -11,7 +11,7 @@
         <a href="/voter/register">Register to Vote</a>
 		<% end_if %>
 		<br />
-		<a href="/decision/factor/$DecisionID">Add Deciding Factors</a>
+		<a href="/decision/factor/$getCurrentDecisionID">Add Deciding Factors</a>
 		<div class="content">$DecisionStatus</div>
 		<!--
 		<br />   
@@ -22,6 +22,7 @@
 		</div>
 	</article>
 	<div>
+	    <% include FactorsYesNoSplit %>
 		<% if 0 %>
 		    <ul>Previous versions of this statement
 		    <% loop DecisionVersions %>

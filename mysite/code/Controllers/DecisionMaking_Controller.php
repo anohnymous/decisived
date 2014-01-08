@@ -25,6 +25,8 @@ class DecisionMaking_Controller extends Controller {
     public static $_CurrentDecisionID = 0;
 
     public function init(){
+        //$this->owner->request->getHeader('Referer');
+        //die();
         $GetDecisionID = $this->request->getVar('DecisionID');
         $PostDecisionID = $this->request->postVar('DecisionID');
         $RequestDecisionID = $this->request->Param('DecisionID');
@@ -37,8 +39,10 @@ class DecisionMaking_Controller extends Controller {
         if(isset($RequestDecisionID)){
             self::$_CurrentDecisionID = $RequestDecisionID;
         }
+        if(Member::currentUserID() != 0){
+            Member::currentUser()->CurrentDecisionID = self::$_CurrentDecisionID;
+        }
         parent::init();
-              
     }
 
     /**
@@ -91,7 +95,7 @@ class DecisionMaking_Controller extends Controller {
     }
     
     public function whatsup(){
-        $this->whatDoWeKnow($this->request->postVars());
+        $this->whatDoWeKnow();
         return $this->renderWith("Page","Page");
     }
 
@@ -177,8 +181,10 @@ class DecisionMaking_Controller extends Controller {
         //$fields->push($ParentField);
         $YesChildField->setEmptyString('Pick a decision to follow the yes choice (now none does)');
         $fields->push($YesChildField);
+        $fields->push(new TextField('YesAction','Yes Action',$Decision->YesAction));
         $NoChildField->setEmptyString('Pick a decision to follow the no choice (now none does)');
         $fields->push($NoChildField);
+        $fields->push(new TextField('NoAction','No Action',$Decision->NoAction));
 
         $ActionText = 'Write Decision Statement.';
 
@@ -236,8 +242,10 @@ class DecisionMaking_Controller extends Controller {
         }
         if($factorid){
             $Factor = DecidingFactor::get_by_id('DecidingFactor',Convert::raw2sql($factorid)); 
-            $FactorContent = $Factor->Content; 
-            $fields->push(new HiddenField('DecidingFactorID','',$Factor->ID));
+            if(is_object($Factor)){
+                $FactorContent = $Factor->Content; 
+                $fields->push(new HiddenField('DecidingFactorID','',$Factor->ID));
+            }
         }
 
         //$fields->push(new CheckboxField('YesOrNo','A Decision Statement must be Yes or No.  Is your statement in that form?<br />Are you ready to put to vote?',0));
@@ -343,6 +351,8 @@ class DecisionMaking_Controller extends Controller {
             $Decision->YesHashtag = isset($data['YesHashtag']) ? Convert::raw2sql($data['YesHashtag']) : $Decision->YesHashtag;
             $Decision->NoHashtag = isset($data['NoHashtag']) ? Convert::raw2sql($data['NoHashtag']) : $Decision->NoHashtag;
             $Decision->UmHashtag = isset($data['UmHashtag']) ? Convert::raw2sql($data['UmHashtag']) : $Decision->UmHashtag;
+            $Decision->YesAction = isset($data['YesAction']) ? Convert::raw2sql($data['YesAction']) : $Decision->YesAction;
+            $Decision->NoAction = isset($data['NoAction']) ? Convert::raw2sql($data['NoAction']) : $Decision->NoAction;
             $Decision->write();
             self::$_CurrentDecisionID = $Decision->ID;
             $this->redirect("decision/deciding/".$Decision->ID);
@@ -380,6 +390,8 @@ class DecisionMaking_Controller extends Controller {
     }
 
     public function writeFactor($data){           
+        //echo '<pre>';
+        //var_dump($data);
         if(isset($data['DecidingFactorContent'])){
             if(isset($data['DecidingFactorID'])) {
                 $DecidingFactor = DecidingFactor::get_by_id('DecidingFactor',Convert::raw2sql($data['DecidingFactorID']));
@@ -387,9 +399,11 @@ class DecisionMaking_Controller extends Controller {
               $DecidingFactor = new DecidingFactor();
             }
             $DecidingFactor->Content = isset($data['DecidingFactorContent']) ? Convert::raw2sql($data['DecidingFactorContent']) : $DecidingFactor->Content;
-            //$DecidingFactor->DecisionID = intval($data['DecisionID']);
+            $DecidingFactor->DecisionID = isset($data['DecisionID']) && (intval($data['DecisionID']) != 0) ? intval($data['DecisionID']) : $DecidingFactor->DecisionID;
             $DecidingFactor->ArgumentSide = isset($data['ArgumentSide']) ? Convert::raw2sql($data['ArgumentSide']) : $DecidingFactor->ArgumentSide;
+          //  var_dump($DecidingFactor);
             $DecidingFactor->write();
+        //echo '<pre>';    //die();
             return true;
         }
         return false;
@@ -652,17 +666,37 @@ class DecisionMaking_Controller extends Controller {
     }
     
     public function whatDoWeKnow($data = null){
+        $data = $this->request->postVars();
+        $DecisionID = isset($data['DecisionID']) ? $data['DecisionID'] : $this->request->Param('DecisionID');
         $fields = new FieldList();
-        if($data['DoYouWannaDecide'] == 'no'){
-            $this->redirect("decision/mostactivity/");    
-        } elseif($data['DoYouWannaDecide'] == 'yes'){
-            $this->redirect("decision/edit/");    
+        if($DecisionID){
+            $Decision = DataObject::get_by_id('Decision',$DecisionID);
         } else {
-            $fields->push(new OptionsetField('DoYouWannaDecide','Is there something you need to decide?',array("yes"=>"Yes","no"=>"No, but I might help with existing decisions.")));            
+            $Decision = DataObject::get_by_id('Decision',4);            
+        }
+        if(isset($data['DoYouWannaDecide']) && $data['DoYouWannaDecide'] == 'no'){
+            if (!empty($Decision->NoAction)){
+                $this->redirect($Decision->NoAction);    
+            } elseif($Decision->NoChildID) {
+                $NoDecision = Decision::get_by_id('Decision',$Decision->NoChildID);  
+                $fields->push(new OptionsetField('DoYouWannaDecide',$NoDecision->Content,array("yes"=>"Yes","no"=>"No")));                            
+                $fields->push(new HiddenField('DecisionID','', $NoDecision->ID));           
+            }
+        } elseif(isset($data['DoYouWannaDecide']) && $data['DoYouWannaDecide'] == 'yes'){
+            if (!empty($Decision->YesAction)){
+                $this->redirect($Decision->YesAction);    
+            } elseif($Decision->YesChildID) {
+                $YesDecision = Decision::get_by_id('Decision',$Decision->YesChildID);  
+                $fields->push(new OptionsetField('DoYouWannaDecide',$YesDecision->Content,array("yes"=>"Yes","no"=>"No")));                            
+                $fields->push(new HiddenField('DecisionID','', $YesDecision->ID));           
+            }
+        } else {
+            $fields->push(new HiddenField('DecisionID','', $Decision->ID));
+            $fields->push(new OptionsetField('DoYouWannaDecide',$Decision->Content,array("yes"=>"Yes","no"=>"No")));            
         } 
         
         $ActionText = 'Go';
-        $ActionPostPath = '/decision/whatsup';
+        $ActionPostPath = '/';
         
         $actions = new FieldList(
             FormAction::create($ActionPostPath)->setTitle($ActionText)

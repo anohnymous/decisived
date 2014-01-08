@@ -5,7 +5,7 @@
 	</article>           
 	<a href="/decision/deleteSystemset/0/$getSystemSetID">Delete System Set</a>
 <div class="clearFix">&nbsp;</div>
-<div class="float50percent">
+<div class="floatHalfWidth">
     <% if OptionsGroupBySet %>
     OptionGroups occuring in this Set
     <ul>
@@ -15,11 +15,11 @@
     <ul>
     <% end_if %>
 </div>	
-<div class="float50percent">
+<div class="floatHalfWidth">
   <% if DecisionsInSet %>
-  <ul>
+  <ul class="sortable">
   <% loop DecisionsInSet %>
-  <li><a href="/decision/deciding/$ID">$Content</a></li>
+  <li id="decision-$SetSortOrder"><a href="/decision/deciding/$ID">$Content</a></li>
   <% end_loop%>
   <ul>
   <% end_if %>

@@ -1,6 +1,6 @@
-<div class="float50percent">
+<div class="floatHalfWidth">
 <% include MostRecentSets %>
 </div>
-<div class="float50percent">
+<div class="floatHalfWidth">
 <% include RecentDecisions %>
 </div>

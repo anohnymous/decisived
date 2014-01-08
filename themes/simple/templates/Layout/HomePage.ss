@@ -38,7 +38,7 @@ statements clearly in binary ways.<p>
 		    <p><b><a href="/decision/edit">Start Deciding</a></b></p>
 		</div>
 	</article>
-<div class="float50percent">
+<div class="floatHalfWidth">
 	    <% if MostRecentSystemSets %>
 	    <h2>System Sets</h2>
 	    <p>Familias de los decisiónes.</p>
@@ -49,7 +49,7 @@ statements clearly in binary ways.<p>
 	    </ul>
 	    <% end_if %>
 </div>
-<div class="float50percent">
+<div class="floatHalfWidth">
 	    <% if MostRecentDecisions %>
 	    <h2>Decisiones en discusion ahorita</h2>
 	    <p>Decisions Currently in Discussion</p>

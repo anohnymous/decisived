@@ -3,7 +3,7 @@
      $('.edit').editable('/decision/ajaxSubmit');
  });
  
-  $(function() {
-    $( "#sortable" ).sortable();
-    $( "#sortable" ).disableSelection();
-  });
+  //$(function() {
+    //$( "#sortable" ).sortable();
+    //$( "#sortable" ).disableSelection();
+  //});

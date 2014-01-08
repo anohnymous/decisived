@@ -61,7 +61,7 @@
 	    </div>
         <h4>Use twitter to discuss, tweet your vote with these hashtags:</h4>
         <hr />
-	    <div class="float50percent">
+	    <div class="floatHalfWidth">
 	    <b>$YesHashtagContent</b>
         <% if getTwitterYes %>
             <ul>
@@ -71,7 +71,7 @@
             </ul>
         <% end_if %>
         </div>
-	    <div class="float50percent">
+	    <div class="floatHalfWidth">
 	    <b>$NoHashtagContent</b>
         <% if getTwitterNo %>
             <ul>

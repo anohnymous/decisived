@@ -7,7 +7,9 @@ class Decision extends DataObject {
         'YesNo' => 'Varchar(4)',
         'YesHashtag' => 'Varchar(13)',
         'NoHashtag' => 'Varchar(13)',
-        'UmHashtag' => 'Varchar(13)'        
+        'UmHashtag' => 'Varchar(13)',
+        'YesAction' => 'Varchar(64)',
+        'NoAction' => 'Varchar(64)' 
     );
 
     static $has_one = array(
@@ -22,8 +24,29 @@ class Decision extends DataObject {
         'DecidingFactor' => 'DecidingFactors'
     );
     
+    public function canView($member = null) {
+        return true;
+    }
+    
+    public function canEdit($member = null) {
+        return true;
+    }
+    
+    public function canDelete($member = null) {
+        return true;
+    }
+    
+    public function canCreate($member = null) {
+        return true;
+    }
+    
     public function SetSortOrder(){
-        //var_dump($this);
+        if($systemSetID = 1){
+            //$SortOrder = DataObject::get('SystemDecisionSort')->filter(array('SystemSetID'=>$systemSetID,'DecisionID'=>$this->ID));
+            //return $SortOrder;
+        } else {
+            return 0;
+        }
     }
 
 }

@@ -842,7 +842,7 @@ body h1 span.amp {
 	}
 }
 
-.float50percent { 
+.floatHalfWidth { 
 	width: 50%;
 	float:left;
 	display: inline;
